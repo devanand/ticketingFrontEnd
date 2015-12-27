@@ -49,13 +49,13 @@
   	</form>
   	<br/><br/>
 	 <div id="table" >
-		<div class="header-row row">
-	    	<span class="cell primary">Ticket ID</span>
+		<!-- <div class="header-row row">
+	    	<span class="cell">Ticket ID</span>
 	    	<span class="cell">Comments</span>
 	     	<span class="cell">Agent ID</span>
 	    	<span class="cell">Customer ID</span>
 	    	<span class="cell">Status</span>
-	  	</div>
+	  	</div> -->
 		<!-- <div class="row">
 			<span class="cell primary"data-label="Vehicle">2013 Subaru WRX</span> 
 			<span class="cell" data-label="Exterior">World Rally Blue</span> 

@@ -36,6 +36,14 @@ function getStatus(status) {
 	 return a[status];
 }
 
+function getStatusInteger(status) {
+	var a = new Array();
+	 a["NEW"] = 1;
+	 a["OPEN"] = 2;
+	 a["CLOSED"] = 3;
+	 return a[status];
+}
+
 var app = angular.module('ticketingapp', []);
 app.controller('CreateTicketCtrl', function($scope, $http) {
 	$scope.formData={};
@@ -70,10 +78,131 @@ app.controller('CreateTicketCtrl', function($scope, $http) {
 });
 
 app.controller('ViewTicketCtrl',function($scope, $http){
-	
-	
+	console.log("in view ticket");
+	$scope.formData={};
+	$scope.findTicket = function(){
+		var ticketId = $scope.formData.ticketid;
+		if(ticketId == null || ticketId.trim() == "") {
+			alert("Enter the ticket id");
+			return;
+		}
+		var dataTemp = {};
+		dataTemp["ticketId"]=ticketId;
+		$http({
+			method  :'POST',
+			url: urlPrefix+"getTickets",
+			data:dataTemp,
+			headers :{'Content-Type':'application/json'}
+		}).success(function(data){
+			if(data != undefined||data != null) {
+				var arr = $.map(data, function(el) { return el; })
+				displayTicket(arr[0])
+			}
+		}).error(function(data){
+			alert("Internal server error ")
+		});
+	};
 	
 }); 
+
+function displayTicket(data) {
+	console.log("In display ticket");
+	console.log(data);
+	$('#editTicket').show();
+	$('#__ticketId').html(data["ticketId"]);
+	$("#__assignedTo").val(data["assignedTo"]);
+	$("#__status").val(getStatus(data["status"]));
+	$("#__comments").val(data["comments"]);
+	$("#__customerId").val(data["customerId"]);
+}
+
+
+function checkClosed() {
+	if($('#__status').val() == 'CLOSED') {
+		if($("#__assignedTo").val().trim() == "") {
+			$("#__status").val(selectVal);
+			alert("Cannot close the ticket without assigning a resource");
+			
+		}
+	} 
+}
+
+
+function checkFocus() {
+	selectVal = $('#__status').val();
+}
+
+function updateTicket() {
+	var dataTemp = {};
+	var ticketId = $('#__ticketId').html();
+	var urlToSend;
+	if(ticketId == null || ticketId.trim() == "") {
+		alert("Ticket without ticket id cannot be persisted");
+		return;
+	}
+	
+	dataTemp["ticketId"]=ticketId;
+	dataTemp["agentId"]=agent;
+	
+	var comments = $("#__comments").val()
+	
+	if(comments == null || comments.trim() == "") {
+		alert("comments cannot be empty");
+		return;
+	}
+	dataTemp["comments"]=comments;
+	
+	var assignedTo=$("#__assignedTo").val();
+	
+	if(assignedTo != null && assignedTo.trim() != "") {
+		urlToSend = urlPrefix+"assign"
+		var status = getStatusInteger($("#__status").val());
+		if(status != 3) {
+			alert("Assigned ticket not closed");
+			return;
+		}
+		dataTemp["assignedTo"]=assignedTo;
+		dataTemp["status"]=status;
+	} else {
+		var status = getStatusInteger($("#__status").val());
+		dataTemp["status"]=status;
+		dataTemp['assignedTo']=assignedTo;
+		urlToSend = urlPrefix+"update"
+	}
+	
+	var customerId = $("#__customerId").val();
+	dataTemp["customerId"]=customerId;
+	dataTemp["generatedTime"]=new Date().getTime();
+	console.log(dataTemp);
+	$.ajax({
+		  type: "POST",
+		  url: urlToSend,
+		  data: JSON.stringify(dataTemp),
+		  contentType:"application/json",
+		  success: function(msg){
+		        alert("Ticket updated");
+		  },
+		  error: function(XMLHttpRequest, textStatus, errorThrown) {
+		     alert("Internal error");
+		  }
+		});
+//	$http({
+//		method  :'POST',
+//		url: urlToSend,
+//		data:dataTemp,
+//		headers :{'Content-Type':'application/json'} // set the headers so angular passing info as form data (not request payload)
+//		})
+//		.success(function(data){
+//		console.log(data);
+//		
+//			$scope.msg = "Ticket successfully updated with ticket id "+data.ticketId;
+//		
+//		})
+//		.error(function(data){
+//			console.log(data);
+//			$scope.msg = data;
+//		});
+}
 
 app.controller('SearchTicketCtrl',function($scope,$http){
 	$scope.formData={};
@@ -83,14 +212,34 @@ app.controller('SearchTicketCtrl',function($scope,$http){
 		var customerId = $scope.formData.custphone;
 		var from = ""+dateToMilliseconds(document.getElementById("from").value);
 		var to = ""+(dateToMilliseconds(document.getElementById("to").value));
+		var dataTemp = {};
+		
 		if(from>to) {
 			alert("Start date should be before the end date");
 			return;
 		}
+		
+		if(ticketId != null && ticketId != "") {
+			dataTemp["ticketId"]=ticketId;
+		}
+		if(customerId != null && customerId != "") {
+			dataTemp["customerId"]=customerId;
+		}
+		if(from != null && from != "") {
+			dataTemp["timeStart"]=from;
+		}
+		
+		if(to != null && to != "") {
+			dataTemp["timeEnd"]=to;
+		}
+		if(jQuery.isEmptyObject(dataTemp)) {
+			dataTemp["agentId"]=agent;
+		}
+		console.log(dataTemp)
 		$http({
 			method  :'POST',
 			url: urlPrefix+"getTickets",
-			data:{"ticketId":ticketId,"customerId":customerId,"timeStart":from,"timeEnd":to, "agentId":agent},
+			data:dataTemp,
 			headers :{'Content-Type':'application/json'}
 		}).success(function(data){
 			if(data != undefined||data != null) {
@@ -105,7 +254,8 @@ app.controller('SearchTicketCtrl',function($scope,$http){
 });
 
 function addToTable(data) {
-	console.log(data);
+	$('#table').empty();
+	createHeaders();
 	for( var i=0;i<data.length;i++) {
 		var temp = data[i];
 		
@@ -153,3 +303,15 @@ function addToTable(data) {
 	$('#table').show();
 }
 
+function createHeaders() {
+	var a= ["Ticket ID", "Comments", "Agent ID", "Customer ID", "Status"];
+	var iDiv = document.createElement('div');
+	iDiv.className = 'header-row row';
+	document.getElementById('table').appendChild(iDiv);
+	for(var i=0;i<a.length;i++) {
+		var span1 = document.createElement('span');
+		span1.className="cell";
+		span1.innerHTML=a[i];
+		iDiv.appendChild(span1);
+	}
+}

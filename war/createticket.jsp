@@ -9,7 +9,7 @@
 <script src="/js/app.js"></script> 
      
 </head>
-<body ng-app="ticketingapp" ng-controller="CreateTicketCtrl">
+<body ng-app="ticketingapp"  ng-controller="CreateTicketCtrl" style=" margin-left: 0px;margin-right: auto;">
 <%@ include file="header.jsp" %>
 <%@ include file="leftnav.jsp" %>
  <div class="maincontainer">
@@ -28,7 +28,7 @@
   		</span>
   		<br/>
   		
-  		<input type="submit" class="btn" value="Create"  ng-click="processForm()"/>
+  		<input type="submit" class="btn" value="Create"/>
   		<br/>
   		
   	</form>

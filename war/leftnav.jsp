@@ -11,7 +11,7 @@
      <script>
   		$(function() {
 	    	$( "#accordion" ).accordion({
-    	  	collapsible: true
+    	  	collapsible: false
     		});
   		});
   		
@@ -45,7 +45,7 @@
   		<h3 class="clicklink">Search</h3>
   		<div>
   			<ul class="clicklink"  style="list-style: none;">
-  				<li onclick="searchCustomer()">Search by Customer</li>
+  				<li onclick="searchCustomer()">Customer</li>
   			</ul>
   		</div>
   		

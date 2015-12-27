@@ -29,18 +29,22 @@
   	</form>
   	<br><br/>
   	<table>
-  	  <tr>
-    <th>Ticket Id</th>
-    <th>Status</th>
-    <th>Comments</th>
-  </tr>
-  <tr>
-    <td>T123</td>
-    <td><Select><option value="Open"><option value="Closed"></Select></td>
-    <td><textarea></textarea></td>
-  </tr>
-  	
-  	</table>
+			<tr>
+				<th>Ticket Id</th>
+				<th>Status</th>
+				<th>Comments</th>
+				<th>Assign To</th>
+			</tr>
+			<tr>
+				<td>T123</td>
+				<td><Select><option value="Open">
+						    <option value="Closed">
+					</Select>
+				</td>
+				<td><textarea></textarea></td>
+			</tr>
+
+	</table>
   
   </div>
 

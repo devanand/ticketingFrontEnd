@@ -14,7 +14,7 @@
   		<div class="homeicon">
   			
   		</div>
-  		<h1><span style="color:#F0F8FF">Ticketing System</span></h1>
+  		<h1 class="header"><span style="color:#F0F8FF">Ticketing System</span></h1>
   		<span class="logouticon">
   		</span>
   	</div>
